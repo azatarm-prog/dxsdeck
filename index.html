@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DXS — The Exchange Protocol for Global Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1120;
+    --teal: #00D4AA;
+    --blue: #0098EA;
+    --white: #FFFFFF;
+    --gray: rgba(255,255,255,0.55);
+    --gray-dim: rgba(255,255,255,0.35);
+    --red: #FF5050;
+    --grid-color: rgba(0,212,170,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #060810;
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 24px;
+  }
+
+  /* ---- SLIDE SHELL ---- */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,212,170,0.12);
+  }
+
+  /* Grid texture */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ambient glow */
+  .glow-tl {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,170,0.10) 0%, transparent 70%);
+    top: -200px; left: -150px;
+    pointer-events: none; z-index: 0;
+  }
+  .glow-br {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,152,234,0.10) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+    pointer-events: none; z-index: 0;
+  }
+  .glow-center {
+    position: absolute;
+    width: 700px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,170,0.07) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Slide number badge */
+  .slide-num {
+    position: absolute;
+    top: 28px; right: 36px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gray-dim);
+    z-index: 10;
+  }
+
+  /* Confidential label */
+  .confidential {
+    position: absolute;
+    bottom: 24px; right: 36px;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gray-dim);
+    z-index: 10;
+  }
+
+  /* ---- TYPOGRAPHY HELPERS ---- */
+  .headline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 52px;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  .headline .accent { color: var(--teal); }
+
+  .subhead {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--gray);
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .stat-value {
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 6px;
+  }
+
+  /* ---- GRADIENT TEXT ---- */
+  .grad {
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ---- DIVIDER LINE ---- */
+  .divider {
+    width: 48px; height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+    border-radius: 2px;
+    margin: 16px 0;
+  }
+
+  /* ---- TAG PILL ---- */
+  .pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,212,170,0.4);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: rgba(0,212,170,0.08);
+  }
+
+  /* ---- TABLE ---- */
+  .dxs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .dxs-table th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,212,170,0.2);
+  }
+  .dxs-table td {
+    padding: 10px 14px;
+    color: var(--gray);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+  .dxs-table td strong, .dxs-table td b {
+    color: var(--white);
+    font-weight: 600;
+  }
+  .dxs-table tr:last-child td { border-bottom: none; }
+  .dxs-table td.dxs-yes { color: var(--teal); font-weight: 700; text-align: center; font-size: 16px; }
+  .dxs-table td.dxs-no  { color: var(--red);  font-weight: 700; text-align: center; font-size: 16px; }
+  .dxs-table td.col-center { text-align: center; }
+  .dxs-table .row-section td {
+    background: rgba(0,212,170,0.06);
+    color: var(--teal);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-bottom: 1px solid rgba(0,212,170,0.15);
+  }
+
+  /* ---- PROBLEM CARD ---- */
+  .prob-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .prob-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .prob-card p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ---- STAT CARD ---- */
+  .stat-card {
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 8px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  /* ---- QUOTE BAR ---- */
+  .quote-bar {
+    border-left: 3px solid var(--teal);
+    padding: 12px 18px;
+    background: rgba(0,212,170,0.05);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ---- GTM STAGE CARD ---- */
+  .stage-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 20px 18px;
+    flex: 1;
+    position: relative;
+  }
+  .stage-card.active {
+    border-color: rgba(0,212,170,0.4);
+    background: rgba(0,212,170,0.06);
+  }
+  .stage-num {
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(0,212,170,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stage-card h4 { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+  .stage-card .stage-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: flex-start; }
+  .stage-card .stage-key { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--teal); min-width: 56px; padding-top: 1px; }
+  .stage-card .stage-val { font-size: 12px; color: var(--gray); line-height: 1.5; }
+  .stage-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal); font-size: 20px; padding: 0 4px; flex-shrink: 0;
+  }
+
+  /* ---- UTXO COMPARISON ---- */
+  .utxo-col {
+    flex: 1;
+    border-radius: 8px;
+    padding: 24px 22px;
+  }
+  .utxo-col.dxs-col {
+    background: rgba(0,212,170,0.07);
+    border: 1px solid rgba(0,212,170,0.3);
+  }
+  .utxo-col.other-col {
+    background: rgba(255,80,80,0.05);
+    border: 1px solid rgba(255,80,80,0.2);
+  }
+  .utxo-col h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .utxo-col h3.teal { color: var(--teal); }
+  .utxo-col h3.red { color: var(--red); }
+  .utxo-row { margin-bottom: 14px; }
+  .utxo-row .utxo-key { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-dim); margin-bottom: 3px; }
+  .utxo-row .utxo-val { font-size: 13px; color: var(--gray); line-height: 1.5; }
+  .utxo-row .utxo-val strong { color: var(--white); }
+  .utxo-vs {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px; padding: 0 16px; flex-shrink: 0;
+  }
+  .utxo-vs span { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--gray-dim); text-transform: uppercase; }
+
+  /* ---- SCOPE TABLE ---- */
+  .scope-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .scope-table th {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .scope-table th:first-child { text-align: left; color: var(--gray); }
+  .scope-table th.th-found { color: var(--teal); }
+  .scope-table th.th-comm  { color: var(--blue); }
+  .scope-table td { padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--gray); }
+  .scope-table td:first-child { color: var(--white); }
+  .scope-table td.s-yes { text-align: center; color: var(--teal); font-size: 16px; }
+  .scope-table td.s-no  { text-align: center; color: rgba(255,80,80,0.6); font-size: 16px; }
+  .scope-table .scope-section td { background: rgba(255,255,255,0.03); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-dim); padding: 5px 16px; }
+
+  /* ---- TRACTION ---- */
+  .phase-block {
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;
+  }
+  .phase-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+  .phase-dot.p1 { background: rgba(0,212,170,0.15); border: 1px solid var(--teal); color: var(--teal); }
+  .phase-dot.p2 { background: rgba(0,152,234,0.15); border: 1px solid var(--blue); color: var(--blue); }
+  .phase-text h4 { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .phase-text p  { font-size: 12px; color: var(--gray); line-height: 1.6; }
+
+  /* ---- FUNDS TABLE ---- */
+  .funds-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .funds-row:last-child { border-bottom: none; }
+  .funds-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .funds-label { font-size: 13px; font-weight: 600; color: var(--white); min-width: 220px; }
+  .funds-desc  { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* ---- CLOSING BULLET ---- */
+  .close-item {
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px;
+  }
+  .close-icon {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .close-item h4 { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+  .close-item p  { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* ---- NAVIGATION ---- */
+  .nav {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+    position: sticky; top: 0; background: transparent; padding: 12px 0; z-index: 100;
+  }
+  .nav button {
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    color: var(--teal); padding: 6px 14px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .nav button:hover { background: rgba(0,212,170,0.2); }
+  .nav span { font-size: 12px; color: var(--gray-dim); }
+
+  /* ---- BSV STAT BARS ---- */
+  .bsv-bar-wrap { margin-bottom: 16px; }
+  .bsv-bar-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .bsv-bar-label span { font-size: 12px; color: var(--gray); }
+  .bsv-bar-label strong { font-size: 12px; color: var(--white); font-weight: 700; }
+  .bsv-bar-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .bsv-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--teal), var(--blue)); }
+
+  /* ---- INVESTOR GETS ---- */
+  .inv-card {
+    background: rgba(0,212,170,0.05);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .inv-card h4 { font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 4px; }
+  .inv-card p  { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* ---- TEAM PLACEHOLDER ---- */
+  .team-ph {
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 28px 24px;
+    text-align: center;
+    flex: 1;
+  }
+  .team-ph .ph-icon { font-size: 32px; margin-bottom: 10px; }
+  .team-ph h4 { font-size: 13px; font-weight: 600; color: var(--gray); }
+
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <button onclick="scrollToSlide(0)">Cover</button>
+  <button onclick="scrollToSlide(1)">Problem</button>
+  <button onclick="scrollToSlide(2)">Opportunity</button>
+  <button onclick="scrollToSlide(3)">Solution</button>
+  <button onclick="scrollToSlide(4)">Technology</button>
+  <button onclick="scrollToSlide(5)">GTM</button>
+  <button onclick="scrollToSlide(6)">UTXO Edge</button>
+  <button onclick="scrollToSlide(7)">Business Model</button>
+  <button onclick="scrollToSlide(8)">Traction</button>
+  <button onclick="scrollToSlide(9)">Ask</button>
+  <button onclick="scrollToSlide(10)">Team</button>
+  <button onclick="scrollToSlide(11)">Closing</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 1 — COVER -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-0">
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="slide-num">Confidential</div>
+
+  <!-- Left accent bar -->
+  <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--teal),var(--blue));z-index:2;"></div>
+
+  <!-- Content -->
+  <div style="position:absolute;left:80px;top:50%;transform:translateY(-50%);z-index:5;max-width:700px;">
+    <div class="pill" style="margin-bottom:24px;">Seed Round</div>
+    <div class="headline" style="margin-bottom:20px;">
+      DXS<br><span class="grad">The Exchange</span><br>Protocol
+    </div>
+    <p class="subhead" style="max-width:520px;margin-bottom:36px;">
+      A stable, open-source protocol for decentralized markets, built on a blockchain with unbounded scale.
+    </p>
+    <div style="display:flex;gap:48px;">
+      <div>
+        <div class="stat-value" style="font-size:36px;">$500K</div>
+        <div class="stat-label">Raising</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+      <div>
+        <div class="stat-value" style="font-size:36px;">$7.5M</div>
+        <div class="stat-label">Pre-Money Valuation</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+      <div>
+        <div class="stat-value" style="font-size:36px;">Equity</div>
+        <div class="stat-label">Instrument</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right decorative element -->
+  <div style="position:absolute;right:80px;top:50%;transform:translateY(-50%);z-index:5;text-align:right;">
+    <div style="font-size:120px;font-weight:900;color:rgba(0,212,170,0.05);letter-spacing:-8px;line-height:1;">DXS</div>
+    <div style="font-size:13px;color:var(--gray-dim);letter-spacing:3px;text-transform:uppercase;">Distributed Exchange System</div>
+  </div>
+
+  <div class="confidential">dxsapp.com</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2 — THE PROBLEM -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-1">
+  <div class="glow-tl"></div>
+  <div class="slide-num">01 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:480px;">
+    <div class="label" style="margin-bottom:12px;">The Problem</div>
+    <div class="headline" style="font-size:40px;margin-bottom:8px;">
+      The Promise of <span class="grad">DeFi</span><br>is Broken
+    </div>
+    <p class="subhead" style="font-size:13px;">Today's "decentralized" exchanges are centralized, unscalable, and carry existential regulatory risk.</p>
+  </div>
+
+  <div style="position:absolute;right:60px;top:60px;bottom:60px;width:660px;z-index:5;display:flex;flex-direction:column;justify-content:center;gap:0;">
+
+    <div class="prob-card">
+      <h4>Regulatory Risk &amp; Centralization</h4>
+      <p>Any utility token that appreciates with platform growth is deemed a <strong style="color:var(--white);">security under the Howey Test</strong>. Governance tokens are not decentralization — they are centralized control with extra steps, creating a massive regulatory target.</p>
+    </div>
+
+    <div class="prob-card">
+      <h4>Inherent Scaling Limits</h4>
+      <p>Any <strong style="color:var(--white);">account-based system</strong> is limited in throughput by design. Serialized transaction processing creates a bottleneck that prevents it from ever becoming a global settlement layer.</p>
+    </div>
+
+    <div class="prob-card">
+      <h4>Poor Market Maker Environment</h4>
+      <p>On-chain latency and unreliable transaction signals force market makers to widen spreads and carry excess capital, leading to <strong style="color:var(--white);">thin, fragile liquidity</strong>.</p>
+    </div>
+
+    <div class="quote-bar" style="margin-top:4px;">
+      The market has optimized for speculation, not fundamental infrastructure. The result is a fragmented ecosystem that cannot support global finance.
+    </div>
+
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3 — THE OPPORTUNITY -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-2">
+  <div class="glow-center"></div>
+  <div class="slide-num">02 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:440px;">
+    <div class="label" style="margin-bottom:12px;">The Opportunity</div>
+    <div class="headline" style="font-size:38px;margin-bottom:16px;">
+      Proven Demand.<br><span class="grad">Flawed Supply.</span>
+    </div>
+    <p class="subhead" style="font-size:13px;margin-bottom:24px;">Hyperliquid proved the world wants on-chain derivatives. The infrastructure to support that demand at global scale does not yet exist.</p>
+    <div class="quote-bar">
+      Its success highlights the gap: a limited, account-based L1 and a governance token (HYPE) — failing the tests of true decentralization. A temporary solution, not the future of finance.
+    </div>
+  </div>
+
+  <!-- Stat panel -->
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:560px;z-index:5;">
+    <div class="label" style="margin-bottom:16px;text-align:center;">Hyperliquid — Proof of Market</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="stat-card">
+        <div class="stat-value">$7B+</div>
+        <div class="stat-label">Daily Trading Volume</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">&lt;50ms</div>
+        <div class="stat-label">Execution Speed</div>
+      </div>
+    </div>
+    <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:20px 24px;">
+      <div class="label" style="margin-bottom:8px;">Historic Milestone</div>
+      <div style="font-size:22px;font-weight:900;color:var(--white);margin-bottom:6px;">~1% of COMEX Daily Volume</div>
+      <div style="font-size:13px;color:var(--gray);line-height:1.6;">Silver (XAG) perpetuals reached ~1% of COMEX daily volume at peak — unprecedented for any on-chain venue. COMEX is the world's largest metals derivatives exchange.</div>
+    </div>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4 — THE SOLUTION -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-3">
+  <div class="glow-tl"></div>
+  <div class="slide-num">03 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:400px;">
+    <div class="label" style="margin-bottom:12px;">The Solution</div>
+    <div class="headline" style="font-size:40px;margin-bottom:16px;">
+      The <span class="grad">IP Layer</span><br>for Finance
+    </div>
+    <p class="subhead" style="font-size:13px;margin-bottom:20px;">DXS is not another DEX. It is a foundational, open-source protocol with a stable, fixed core — the same model that built the internet.</p>
+    <div class="quote-bar">
+      We don't need to invent new, complex scaling solutions. We are returning to the original, proven design for a global-scale electronic cash system.
+    </div>
+  </div>
+
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:640px;z-index:5;">
+    <table class="dxs-table">
+      <thead>
+        <tr>
+          <th style="width:180px;">Feature</th>
+          <th>DXS Approach</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Core Protocol</strong></td>
+          <td><strong>Fixed and Stable.</strong> The fundamental rules of exchange are locked, ensuring predictability and eliminating governance risk. Like TCP/IP — it does not change.</td>
+        </tr>
+        <tr>
+          <td><strong>Evolution</strong></td>
+          <td><strong>Built on Top.</strong> New features, versions, and applications are built on the commercial layer, not by altering the core protocol.</td>
+        </tr>
+        <tr>
+          <td><strong>Scalability</strong></td>
+          <td><strong>Unbounded On-Chain.</strong> Built on BSV, restoring Satoshi's original design for limitless on-chain scaling. No throughput ceiling.</td>
+        </tr>
+        <tr>
+          <td><strong>Decentralization</strong></td>
+          <td><strong>Genuine.</strong> No protocol tokens, no governance mechanisms, no securities risk.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5 — TECHNOLOGY -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-4">
+  <div class="glow-br"></div>
+  <div class="slide-num">04 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:440px;">
+    <div class="label" style="margin-bottom:12px;">Technology Choice</div>
+    <div class="headline" style="font-size:38px;margin-bottom:16px;">
+      A Contrarian<br><span class="grad">Advantage</span>
+    </div>
+    <p class="subhead" style="font-size:13px;margin-bottom:20px;">The market is blinded by a false narrative that Bitcoin cannot scale. The original protocol was designed for unbounded scale but was artificially limited. BSV restores this original design.</p>
+    <div class="quote-bar">
+      While our competitors are building on fundamentally limited systems, we are building on the only platform that has solved on-chain scaling.
+    </div>
+  </div>
+
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:620px;z-index:5;">
+
+    <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:20px 24px;margin-bottom:14px;">
+      <div class="label" style="margin-bottom:10px;">Teranode — Proven in Production</div>
+      <p style="font-size:13px;color:var(--gray);line-height:1.6;">After over 5 years in production, the release of <strong style="color:var(--white);">Teranode</strong> proves BSV's unbounded scalability — providing the performance foundation for institutional-grade finance.</p>
+    </div>
+
+    <div class="label" style="margin-bottom:12px;">Performance vs. Alternatives</div>
+
+    <div class="bsv-bar-wrap">
+      <div class="bsv-bar-label"><span>BSV (Teranode)</span><strong style="color:var(--teal);">10M+ TPS</strong></div>
+      <div class="bsv-bar-track"><div class="bsv-bar-fill" style="width:100%;"></div></div>
+    </div>
+    <div class="bsv-bar-wrap">
+      <div class="bsv-bar-label"><span>Hyperliquid L1</span><strong>~200K TPS</strong></div>
+      <div class="bsv-bar-track"><div class="bsv-bar-fill" style="width:2%;background:rgba(255,255,255,0.2);"></div></div>
+    </div>
+    <div class="bsv-bar-wrap">
+      <div class="bsv-bar-label"><span>Ethereum</span><strong style="color:var(--red);">~30 TPS</strong></div>
+      <div class="bsv-bar-track"><div class="bsv-bar-fill" style="width:0.3%;background:var(--red);opacity:0.5;"></div></div>
+    </div>
+
+    <div style="display:flex;gap:14px;margin-top:16px;">
+      <div class="stat-card" style="flex:1;padding:14px;">
+        <div style="font-size:22px;font-weight:900;color:var(--teal);">Low &amp; Stable</div>
+        <div class="stat-label">Transaction Fees</div>
+      </div>
+      <div class="stat-card" style="flex:1;padding:14px;">
+        <div style="font-size:22px;font-weight:900;color:var(--teal);">5+ Years</div>
+        <div class="stat-label">Production History</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6 — GO-TO-MARKET -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-5">
+  <div class="glow-center"></div>
+  <div class="slide-num">05 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:380px;">
+    <div class="label" style="margin-bottom:12px;">Go-to-Market</div>
+    <div class="headline" style="font-size:38px;margin-bottom:16px;">
+      The Path<br>to <span class="grad">Liquidity</span>
+    </div>
+    <p class="subhead" style="font-size:13px;margin-bottom:20px;">To win retail, you must first win liquidity. To win liquidity, you must win the Market Makers.</p>
+    <div class="quote-bar">
+      We are laser-focused on the one group that matters first: the liquidity providers. Everything else follows.
+    </div>
+  </div>
+
+  <!-- Three stage flow -->
+  <div style="position:absolute;right:50px;top:50%;transform:translateY(-50%);width:720px;z-index:5;display:flex;align-items:stretch;gap:0;">
+
+    <div class="stage-card active" style="border-top:3px solid var(--teal);">
+      <div class="stage-num">01</div>
+      <div class="label" style="margin-bottom:6px;font-size:10px;">Our Focus Now</div>
+      <h4>Foundation</h4>
+      <div class="stage-row"><span class="stage-key">Target</span><span class="stage-val">Professional Market Makers</span></div>
+      <div class="stage-row"><span class="stage-key">Offering</span><span class="stage-val">Structurally superior environment via UTXO advantage</span></div>
+      <div class="stage-row"><span class="stage-key">Goal</span><span class="stage-val">Build deep, reliable, cheap liquidity</span></div>
+    </div>
+
+    <div class="stage-arrow">&#8594;</div>
+
+    <div class="stage-card" style="border-top:3px solid var(--blue);">
+      <div class="stage-num">02</div>
+      <div class="label" style="margin-bottom:6px;font-size:10px;color:var(--blue);">The Catalyst</div>
+      <h4>Ecosystem</h4>
+      <div class="stage-row"><span class="stage-key">Target</span><span class="stage-val">Exchanges, Brokers, Fintech Apps</span></div>
+      <div class="stage-row"><span class="stage-key">Offering</span><span class="stage-val">Access to a deep, cross-venue liquidity pool via DXS protocol</span></div>
+      <div class="stage-row"><span class="stage-key">Goal</span><span class="stage-val">Network of venues sharing the same liquidity</span></div>
+    </div>
+
+    <div class="stage-arrow">&#8594;</div>
+
+    <div class="stage-card" style="border-top:3px solid rgba(255,255,255,0.2);">
+      <div class="stage-num">03</div>
+      <div class="label" style="margin-bottom:6px;font-size:10px;color:var(--gray);">The Flywheel</div>
+      <h4>Scale</h4>
+      <div class="stage-row"><span class="stage-key">Target</span><span class="stage-val">Retail Traders</span></div>
+      <div class="stage-row"><span class="stage-key">Offering</span><span class="stage-val">Best-in-class execution — tight spreads, low slippage</span></div>
+      <div class="stage-row"><span class="stage-key">Goal</span><span class="stage-val">Massive retail volume attracts even more market makers</span></div>
+    </div>
+
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7 — UTXO EDGE -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-6">
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="slide-num">06 / 12</div>
+
+  <!-- Top header -->
+  <div style="position:absolute;left:80px;top:52px;z-index:5;right:80px;">
+    <div class="label" style="margin-bottom:8px;">The Market Maker's Edge</div>
+    <div class="headline" style="font-size:36px;">
+      Why <span class="grad">UTXO</span> Wins
+    </div>
+    <p class="subhead" style="font-size:13px;margin-top:6px;">Market making is a latency and risk management business. UTXO provides an information advantage that is structurally impossible on account-based systems.</p>
+  </div>
+
+  <!-- Two columns -->
+  <div style="position:absolute;left:80px;right:80px;top:200px;bottom:70px;z-index:5;display:flex;gap:16px;align-items:stretch;">
+
+    <div class="utxo-col dxs-col">
+      <h3 class="teal">&#9646; DXS — UTXO Model</h3>
+      <div class="utxo-row">
+        <div class="utxo-key">Core Logic</div>
+        <div class="utxo-val">Transactions reference <strong>explicit, unique inputs</strong>. Intent is unambiguous from the moment of propagation.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Signal Quality</div>
+        <div class="utxo-val"><strong>Actionable Signal.</strong> Conflicting spends are immediately visible. Intent cannot be silently replaced.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Hedging</div>
+        <div class="utxo-val"><strong>Immediate.</strong> Hedge execution can occur as soon as the transaction is seen on the network.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Spread</div>
+        <div class="utxo-val" style="color:var(--teal);font-weight:700;">Tighter — lower risk allows tighter spreads</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Capital</div>
+        <div class="utxo-val" style="color:var(--teal);font-weight:700;">Higher efficiency — less held in reserve</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Execution</div>
+        <div class="utxo-val" style="color:var(--teal);font-weight:700;">&lt;20ms target</div>
+      </div>
+    </div>
+
+    <div class="utxo-vs">
+      <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);"></div>
+      <span>vs</span>
+      <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);"></div>
+    </div>
+
+    <div class="utxo-col other-col">
+      <h3 class="red">&#9646; Others — Account-Based</h3>
+      <div class="utxo-row">
+        <div class="utxo-key">Core Logic</div>
+        <div class="utxo-val">Transactions <strong>mutate shared account state</strong>. Multiple transactions compete to modify the same nonce.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Signal Quality</div>
+        <div class="utxo-val"><strong>Provisional Intent.</strong> Until block inclusion, ordering is uncertain and transactions can be replaced or repriced.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Hedging</div>
+        <div class="utxo-val"><strong>Delayed.</strong> Must wait for a higher degree of certainty, increasing unhedged exposure and inventory risk.</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Spread</div>
+        <div class="utxo-val" style="color:var(--red);font-weight:700;">Wider — uncertainty and risk require wider spreads</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Capital</div>
+        <div class="utxo-val" style="color:var(--red);font-weight:700;">Lower efficiency — more capital buffering uncertainty</div>
+      </div>
+      <div class="utxo-row">
+        <div class="utxo-key">Execution</div>
+        <div class="utxo-val" style="color:var(--red);font-weight:700;">~50ms (Hyperliquid) to seconds (Ethereum)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:52px;background:rgba(0,212,170,0.07);border-top:1px solid rgba(0,212,170,0.15);display:flex;align-items:center;padding:0 80px;z-index:5;">
+    <span style="font-size:13px;color:var(--gray);font-style:italic;">In on-chain order books, UTXO turns network propagation into a <strong style="color:var(--teal);">trading signal</strong>. Account-based models turn it into a <strong style="color:var(--red);">question mark</strong>.</span>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8 — BUSINESS MODEL -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-7">
+  <div class="glow-tl"></div>
+  <div class="slide-num">07 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:340px;">
+    <div class="label" style="margin-bottom:12px;">Business Model</div>
+    <div class="headline" style="font-size:38px;margin-bottom:16px;">
+      A Two-Scope<br><span class="grad">Model</span>
+    </div>
+    <p class="subhead" style="font-size:13px;margin-bottom:16px;">Strict separation between the non-profit public good and the for-profit commercial product. The same model that powers Linux, PostgreSQL, and the internet itself.</p>
+    <div style="display:flex;gap:10px;flex-direction:column;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--teal);flex-shrink:0;"></div>
+        <span style="font-size:12px;color:var(--gray);">Foundation — Open standard, non-profit</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--blue);flex-shrink:0;"></div>
+        <span style="font-size:12px;color:var(--gray);">Commercial — Licensed product, for-profit</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;right:50px;top:50px;bottom:50px;width:720px;z-index:5;overflow:auto;">
+    <table class="scope-table">
+      <thead>
+        <tr>
+          <th style="width:260px;">Responsibility</th>
+          <th class="th-found">DXS Foundation</th>
+          <th class="th-comm">DXS Commercial</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="scope-section"><td colspan="3">Protocol Specification</td></tr>
+        <tr><td>Order Format &amp; Settlement Rules</td><td class="s-yes">✓</td><td class="s-no">✗</td></tr>
+        <tr><td>Canonical Interpretation</td><td class="s-yes">✓</td><td class="s-no">✗</td></tr>
+        <tr><td>Reference Indexer (Slow, Correct)</td><td class="s-yes">✓</td><td class="s-no">✗</td></tr>
+        <tr class="scope-section"><td colspan="3">Performance &amp; Operations</td></tr>
+        <tr><td>Low-Latency Data Ingestion</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+        <tr><td>High-Performance Matching Logic</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+        <tr><td>Risk Engine &amp; Hedging Tools</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+        <tr><td>Trader UI &amp; Dashboards</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+        <tr><td>Performance Tuning &amp; Optimization</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+        <tr><td>Hosted Deployments &amp; SLAs</td><td class="s-no">✗</td><td class="s-yes">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9 — TRACTION -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-8">
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="slide-num">08 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:400px;">
+    <div class="label" style="margin-bottom:12px;">Track Record</div>
+    <div class="headline" style="font-size:36px;margin-bottom:16px;">
+      We Have<br><span class="grad">Shipped</span><br>Before
+    </div>
+    <p class="subhead" style="font-size:13px;">We are not first-time founders with a whitepaper. We built a live financial product, operated it at scale, and used what we learned to build DXS.</p>
+  </div>
+
+  <!-- Stats -->
+  <div style="position:absolute;left:80px;bottom:60px;z-index:5;display:flex;gap:24px;">
+    <div class="stat-card" style="min-width:160px;">
+      <div class="stat-value">$7B</div>
+      <div class="stat-label">Volume Processed</div>
+    </div>
+    <div class="stat-card" style="min-width:160px;">
+      <div class="stat-value">1,000+</div>
+      <div class="stat-label">Monthly Active Users</div>
+    </div>
+    <div class="stat-card" style="min-width:160px;">
+      <div class="stat-value">3+ Yrs</div>
+      <div class="stat-label">Live in Production</div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div style="position:absolute;right:60px;top:60px;bottom:60px;width:580px;z-index:5;display:flex;flex-direction:column;justify-content:center;gap:0;">
+
+    <div class="phase-block">
+      <div class="phase-dot p1">1</div>
+      <div class="phase-text">
+        <h4>Phase 1 — Validation (Complete)</h4>
+        <p>We designed, built, launched, and ran a <strong style="color:var(--white);">semi-custodial CFD derivatives trading platform</strong>. It gave us 3+ years of hard operational data on what on-chain financial products actually need to work in practice.</p>
+      </div>
+    </div>
+
+    <div style="width:1px;height:24px;background:rgba(0,212,170,0.2);margin-left:14px;"></div>
+
+    <div class="phase-block">
+      <div class="phase-dot p2">2</div>
+      <div class="phase-text">
+        <h4>Phase 2 — Decentralization (Now)</h4>
+        <p>The CFD platform was our R&amp;D lab. The custody model, the latency constraints, and the liquidity fragility we observed firsthand are exactly the problems DXS is designed to eliminate. The <strong style="color:var(--white);">UTXO-based peer-to-peer order book protocol</strong> is the direct result of those 3+ years.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div class="quote-bar">
+        We know what we are building because we have already built the thing it replaces.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10 — THE ASK -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-9">
+  <div class="glow-center"></div>
+  <div class="slide-num">09 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:380px;">
+    <div class="label" style="margin-bottom:12px;">The Ask</div>
+    <div class="headline" style="font-size:38px;margin-bottom:16px;">
+      <span class="grad">$500K</span><br>Seed Round
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:20px;">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:var(--white);">$7.5M</div>
+        <div class="stat-label">Pre-Money Valuation</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+      <div>
+        <div style="font-size:22px;font-weight:900;color:var(--white);">Equity</div>
+        <div class="stat-label">Instrument</div>
+      </div>
+    </div>
+    <p class="subhead" style="font-size:13px;">We have proven the technology and the model. This funding is for commercial expansion beyond our initial market.</p>
+  </div>
+
+  <!-- Use of funds -->
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:680px;z-index:5;">
+    <div class="label" style="margin-bottom:16px;">Use of Funds</div>
+
+    <div class="funds-row">
+      <div class="funds-dot" style="background:var(--teal);"></div>
+      <div class="funds-label">Open-Source Infrastructure</div>
+      <div class="funds-desc">Fund core developers to support the non-profit Foundation and protocol.</div>
+    </div>
+    <div class="funds-row">
+      <div class="funds-dot" style="background:var(--blue);"></div>
+      <div class="funds-label">Commercial Product Dev</div>
+      <div class="funds-desc">Build out our v1 licensed turn-key trading application.</div>
+    </div>
+    <div class="funds-row">
+      <div class="funds-dot" style="background:#7B61FF;"></div>
+      <div class="funds-label">Business Development</div>
+      <div class="funds-desc">Onboard the first wave of commercial licensees outside the BSV ecosystem.</div>
+    </div>
+    <div class="funds-row">
+      <div class="funds-dot" style="background:#F59E0B;"></div>
+      <div class="funds-label">Foundation Setup</div>
+      <div class="funds-desc">Finalize the legal structure for the non-profit foundation.</div>
+    </div>
+    <div class="funds-row">
+      <div class="funds-dot" style="background:rgba(255,255,255,0.3);"></div>
+      <div class="funds-label">Team &amp; Operations</div>
+      <div class="funds-desc">Expand engineering and BD teams for a 12-month runway.</div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div class="label" style="margin-bottom:12px;">What Investors Get</div>
+      <div style="display:flex;gap:12px;">
+        <div class="inv-card" style="flex:1;margin-bottom:0;">
+          <h4>Equity</h4>
+          <p>Stake in the commercial entity building the licensed software.</p>
+        </div>
+        <div class="inv-card" style="flex:1;margin-bottom:0;">
+          <h4>First-Mover</h4>
+          <p>Position on the only protocol built for genuine decentralization at scale.</p>
+        </div>
+        <div class="inv-card" style="flex:1;margin-bottom:0;">
+          <h4>Proven Model</h4>
+          <p>Existing traction and a clear, direct path to revenue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11 — TEAM -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-10">
+  <div class="glow-center"></div>
+  <div class="slide-num">10 / 12</div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:400px;">
+    <div class="label" style="margin-bottom:12px;">The Team</div>
+    <div class="headline" style="font-size:42px;margin-bottom:16px;">
+      Built by<br><span class="grad">Operators</span>
+    </div>
+    <p class="subhead" style="font-size:13px;">The team that built and operated a live financial product processing $7B+ in volume. We have the scars, the data, and the protocol.</p>
+  </div>
+
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:700px;z-index:5;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="team-ph">
+        <div class="ph-icon">👤</div>
+        <h4>[Founder / CEO]</h4>
+        <p style="font-size:11px;color:var(--gray-dim);margin-top:4px;">Insert bio — HFT / Exchange background</p>
+      </div>
+      <div class="team-ph">
+        <div class="ph-icon">👤</div>
+        <h4>[Co-Founder / CTO]</h4>
+        <p style="font-size:11px;color:var(--gray-dim);margin-top:4px;">Insert bio — Protocol / Blockchain engineering</p>
+      </div>
+      <div class="team-ph">
+        <div class="ph-icon">👤</div>
+        <h4>[Head of BD]</h4>
+        <p style="font-size:11px;color:var(--gray-dim);margin-top:4px;">Insert bio — Enterprise software sales</p>
+      </div>
+      <div class="team-ph">
+        <div class="ph-icon">👤</div>
+        <h4>[Head of Quant / Risk]</h4>
+        <p style="font-size:11px;color:var(--gray-dim);margin-top:4px;">Insert bio — Market making / quantitative finance</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="confidential">Confidential</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12 — CLOSING -->
+<!-- ============================================================ -->
+<div class="slide" id="slide-11">
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="slide-num">11 / 12</div>
+
+  <!-- Left accent bar -->
+  <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--teal),var(--blue));z-index:2;"></div>
+
+  <div style="position:absolute;left:80px;top:60px;z-index:5;max-width:400px;">
+    <div class="label" style="margin-bottom:12px;">Why DXS</div>
+    <div class="headline" style="font-size:40px;margin-bottom:16px;">
+      The Protocol<br>for <span class="grad">What's Next</span>
+    </div>
+    <div style="margin-top:24px;">
+      <div style="font-size:16px;color:var(--gray);margin-bottom:8px;">Contact</div>
+      <div style="font-size:15px;color:var(--white);font-weight:600;">[Insert Contact Details]</div>
+      <div style="font-size:13px;color:var(--teal);margin-top:4px;">dxsapp.com</div>
+    </div>
+  </div>
+
+  <div style="position:absolute;right:60px;top:50%;transform:translateY(-50%);width:660px;z-index:5;">
+    <div class="close-item">
+      <div class="close-icon">📊</div>
+      <div>
+        <h4>Proven Traction</h4>
+        <p>$7Bn in volume processed, 1,000+ MAU — from a live, operational product, not a prototype.</p>
+      </div>
+    </div>
+    <div class="close-item">
+      <div class="close-icon">🔒</div>
+      <div>
+        <h4>Stable Core, Evolvable System</h4>
+        <p>The IP-layer model for decentralized exchange. Fixed where it matters, open where it needs to grow.</p>
+      </div>
+    </div>
+    <div class="close-item">
+      <div class="close-icon">⚡</div>
+      <div>
+        <h4>Unbounded Scale</h4>
+        <p>Built on the only blockchain that restores Bitcoin's original, scalable design — now proven by Teranode.</p>
+      </div>
+    </div>
+    <div class="close-item">
+      <div class="close-icon">💼</div>
+      <div>
+        <h4>Clear Business Model</h4>
+        <p>Open-source core with a for-profit, licensed software company. Proven by Linux, PostgreSQL, and the internet.</p>
+      </div>
+    </div>
+    <div class="close-item" style="margin-bottom:0;">
+      <div class="close-icon">🎯</div>
+      <div>
+        <h4>First-Mover on the Right Tech</h4>
+        <p>While others built on flawed foundations, we built on the right one. Now we are ready to scale.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="confidential">Confidential — DXS Distributed Exchange System</div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  function scrollToSlide(i) {
+    slides[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+</script>
+
+</body>
+</html>
