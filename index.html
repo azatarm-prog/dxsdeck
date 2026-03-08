@@ -28,11 +28,18 @@
     /* System font stack as immediate fallback; Inter loads async and swaps in */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: var(--white);
+    display: block;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  /* Center slides on desktop */
+  #deck-scaler {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 20px;
     gap: 24px;
+    transform-origin: top left;
   }
 
   /* ---- SLIDE SHELL ---- */
@@ -418,10 +425,7 @@
 
 
   /* ---- MOBILE SCALE WRAPPER ---- */
-  #deck-scaler {
-    transform-origin: top left;
-    /* width/height and transform set dynamically by JS */
-  }
+  /* #deck-scaler styles are defined above, transform-origin set inline by JS */
 </style>
 </head>
 <body>
@@ -434,19 +438,31 @@
     var vw = window.innerWidth;
     var scale = vw / SLIDE_W;
     if (scale >= 1) {
-      // Desktop: no scaling needed
+      // Desktop: no scaling needed, reset everything
       scaler.style.transform = '';
+      scaler.style.transformOrigin = '';
       scaler.style.width = '';
-      scaler.style.height = '';
+      scaler.style.position = '';
       document.body.style.height = '';
+      document.body.style.minHeight = '';
     } else {
       // Mobile/tablet: scale down
-      var totalH = scaler.scrollHeight;
-      scaler.style.transform = 'scale(' + scale + ')';
+      // Must read natural height BEFORE applying transform
+      scaler.style.transform = 'none';
       scaler.style.width = SLIDE_W + 'px';
-      // After scaling, the scaler occupies scale*totalH in document flow
-      // We set body height so the page scrolls correctly
-      document.body.style.height = Math.ceil(totalH * scale) + 'px';
+      scaler.style.position = 'absolute';
+      scaler.style.top = '0';
+      scaler.style.left = '0';
+      var naturalH = scaler.scrollHeight;
+      var scaledH = Math.ceil(naturalH * scale);
+      // Apply the scale
+      scaler.style.transform = 'scale(' + scale + ')';
+      scaler.style.transformOrigin = 'top left';
+      // Give body explicit height so it scrolls correctly
+      document.body.style.height = scaledH + 'px';
+      document.body.style.minHeight = scaledH + 'px';
+      document.body.style.position = 'relative';
+      document.body.style.padding = '0';
     }
   }
   document.addEventListener('DOMContentLoaded', function() {
