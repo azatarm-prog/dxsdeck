@@ -413,9 +413,54 @@
   .team-ph .ph-icon { font-size: 32px; margin-bottom: 10px; }
   .team-ph h4 { font-size: 13px; font-weight: 600; color: var(--gray); }
 
+
+  /* ---- MOBILE SCALE WRAPPER ---- */
+  #deck-scaler {
+    transform-origin: top left;
+    /* width/height and transform set dynamically by JS */
+  }
 </style>
 </head>
 <body>
+<script>
+(function() {
+  var SLIDE_W = 1280;
+  function scaleDeck() {
+    var scaler = document.getElementById('deck-scaler');
+    if (!scaler) return;
+    var vw = window.innerWidth;
+    var scale = vw / SLIDE_W;
+    if (scale >= 1) {
+      // Desktop: no scaling needed
+      scaler.style.transform = '';
+      scaler.style.width = '';
+      scaler.style.height = '';
+      document.body.style.height = '';
+    } else {
+      // Mobile/tablet: scale down
+      var totalH = scaler.scrollHeight;
+      scaler.style.transform = 'scale(' + scale + ')';
+      scaler.style.width = SLIDE_W + 'px';
+      // After scaling, the scaler occupies scale*totalH in document flow
+      // We set body height so the page scrolls correctly
+      document.body.style.height = Math.ceil(totalH * scale) + 'px';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Wrap everything in a scaler div
+    var body = document.body;
+    var scaler = document.createElement('div');
+    scaler.id = 'deck-scaler';
+    while (body.firstChild) scaler.appendChild(body.firstChild);
+    body.appendChild(scaler);
+    scaleDeck();
+  });
+  window.addEventListener('resize', scaleDeck);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(scaleDeck, 200);
+  });
+})();
+</script>
 
 <div class="nav">
   <button onclick="scrollToSlide(0)">Cover</button>
